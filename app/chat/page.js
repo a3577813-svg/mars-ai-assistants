@@ -3,6 +3,36 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { roles } from '../../lib/roles';
 
+function renderInline(text) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index}>{part.slice(2, -2)}</strong>;
+    }
+    return <span key={index}>{part}</span>;
+  });
+}
+
+function FormattedMessage({ text }) {
+  const lines = String(text || '').split('\n');
+  return (
+    <div className="formatted-message">
+      {lines.map((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={index} className="message-gap" />;
+        if (trimmed.startsWith('### ')) return <h4 key={index}>{renderInline(trimmed.slice(4))}</h4>;
+        if (trimmed.startsWith('## ')) return <h3 key={index}>{renderInline(trimmed.slice(3))}</h3>;
+        if (trimmed.startsWith('# ')) return <h3 key={index}>{renderInline(trimmed.slice(2))}</h3>;
+        if (/^[-•] /.test(trimmed)) return <div key={index} className="message-list-item"><span>•</span><div>{renderInline(trimmed.slice(2))}</div></div>;
+        if (/^\d+[.)] /.test(trimmed)) {
+          const match = trimmed.match(/^(\d+[.)])\s+(.*)$/);
+          return <div key={index} className="message-list-item"><span>{match[1]}</span><div>{renderInline(match[2])}</div></div>;
+        }
+        return <div key={index} className="message-paragraph">{renderInline(line)}</div>;
+      })}
+    </div>
+  );
+}
+
 export default function ChatPage() {
   const [roleId, setRoleId] = useState('leader');
   const [messages, setMessages] = useState([]);
@@ -94,7 +124,7 @@ export default function ChatPage() {
         {messages.map((message, index) => (
           <div key={index} className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}>
             <div className="message-author">{message.role === 'user' ? (name || 'Ты') : role.title}</div>
-            <div className="message-text">{message.content}</div>
+            <div className="message-text"><FormattedMessage text={message.content} /></div>
           </div>
         ))}
         {busy && <div className="message assistant-message typing">{role.title} думает…</div>}
