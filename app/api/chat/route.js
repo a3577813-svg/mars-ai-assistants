@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { roles } from '../../../lib/roles';
+import { technologistInstructions } from '../../../lib/technologistInstructions';
 
 export const runtime = 'nodejs';
 
@@ -53,42 +54,22 @@ export async function POST(request) {
 
 Доступны три типа:
 1) flow — цепочка/последовательность. Каждая строка: Название блока | Короткое содержание
-Пример:
-:::scheme flow | Логика проекта
-Проблема | Подростки доверяют сообщениям мошенников
-Решение | Обучающая онлайн-игра
-Пилот | Тест на школьниках
-Результат | Проверенные игровые механики
-:::
-
 2) cards — набор смысловых карточек. Каждая строка: Название карточки | Короткое содержание
-Пример:
-:::scheme cards | Концепция проекта
-Аудитория | Школьники 11–14 лет
-Ценность | Учиться распознавать мошенничество через игру
-Формат | Онлайн-сценарии с выбором действий
-:::
-
 3) proscons — две колонки «Сильные стороны / Риски». Каждая строка: plus | текст или risk | текст
-Пример:
-:::scheme proscons | Проверка идеи
-plus | Понятная аудитория
-plus | Игровой формат снижает порог входа
-risk | Нужно проверить, меняется ли поведение после игры
-risk | Сценарии могут быстро устаревать
-:::
 
 Правила схем:
 - Обычно 3–6 элементов.
 - Каждый элемент очень короткий.
-- Не объясняй ребёнку служебный синтаксис и не называй TYPE/flow/cards/proscons как технические команды.
+- Не объясняй ребёнку служебный синтаксис.
 - После схемы можно задать один короткий следующий вопрос.
 `;
+
+    const roleInstructions = roleId === 'technologist' ? technologistInstructions : role.instructions;
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const response = await client.responses.create({
       model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-      instructions: `${role.instructions}\n\n${readabilityRules}\nКОНТЕКСТ ТЕКУЩЕЙ СЕССИИ:\n${projectContext}`,
+      instructions: `${roleInstructions}\n\n${readabilityRules}\nКОНТЕКСТ ТЕКУЩЕЙ СЕССИИ:\n${projectContext}`,
       input: cleanMessages
     });
 
