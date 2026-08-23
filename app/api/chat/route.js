@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { roles } from '../../../lib/roles';
 import { technologistInstructions } from '../../../lib/technologistInstructions';
+import { marketerInstructions } from '../../../lib/marketerInstructions';
 
 export const runtime = 'nodejs';
 
@@ -64,7 +65,9 @@ export async function POST(request) {
 - После схемы можно задать один короткий следующий вопрос.
 `;
 
-    const roleInstructions = roleId === 'technologist' ? technologistInstructions : role.instructions;
+    let roleInstructions = role.instructions;
+    if (roleId === 'technologist') roleInstructions = technologistInstructions;
+    if (roleId === 'assistant') roleInstructions = marketerInstructions;
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const response = await client.responses.create({
