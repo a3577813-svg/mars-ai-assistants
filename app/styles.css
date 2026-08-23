@@ -51,6 +51,20 @@ h1 { font-size: clamp(38px, 6vw, 72px); line-height: .98; letter-spacing: -.05em
 .message-gap { height: 7px; }
 .message-list-item { display: grid; grid-template-columns: auto 1fr; gap: 8px; margin: 5px 0; align-items: start; }
 .user-message .formatted-message h3, .user-message .formatted-message h4 { color: inherit; }
+.scheme { margin: 14px 0 6px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); }
+.scheme-title { font-size: 15px; font-weight: 850; margin-bottom: 11px; letter-spacing: -.01em; }
+.scheme-flow-track { display: flex; align-items: stretch; gap: 7px; overflow-x: auto; padding-bottom: 4px; }
+.scheme-flow-part { display: flex; align-items: center; gap: 7px; flex: 0 0 auto; }
+.scheme-node { width: 145px; min-height: 84px; padding: 11px; border-radius: 13px; border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; justify-content: center; }
+.scheme-node-title, .scheme-card-title, .scheme-column-title { font-weight: 850; line-height: 1.2; }
+.scheme-node-text, .scheme-card-text { color: var(--muted); font-size: 13px; line-height: 1.35; margin-top: 5px; }
+.scheme-arrow { font-size: 22px; font-weight: 700; color: var(--muted); }
+.scheme-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.scheme-card { padding: 11px; border-radius: 13px; border: 1px solid var(--line); background: var(--surface); }
+.scheme-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.scheme-column { padding: 11px; border-radius: 13px; border: 1px solid var(--line); background: var(--surface); }
+.scheme-column-title { margin-bottom: 7px; }
+.scheme-point { font-size: 13px; line-height: 1.4; margin: 5px 0; }
 .composer { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(800px, calc(100% - 28px)); display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,.96); box-shadow: 0 14px 40px rgba(0,0,0,.10); }
 .composer textarea { resize: none; border: 0; outline: 0; padding: 9px 10px; min-height: 46px; max-height: 160px; background: transparent; line-height: 1.45; }
 .composer button { align-self: end; border: 0; border-radius: 13px; background: var(--accent); color: #fff; padding: 12px 17px; cursor: pointer; font-weight: 800; }
@@ -64,4 +78,6 @@ h1 { font-size: clamp(38px, 6vw, 72px); line-height: .98; letter-spacing: -.05em
   .ghost-button { display: none; }
   .message { max-width: 92%; }
   .formatted-message h3 { font-size: 18px; }
+  .scheme-card-grid, .scheme-columns { grid-template-columns: 1fr; }
+  .scheme-node { width: 132px; }
 }
