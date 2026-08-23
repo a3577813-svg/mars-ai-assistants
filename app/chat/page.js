@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { roles } from '../../lib/roles';
 
 function renderInline(text) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
+  return String(text || '').split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return <strong key={index}>{part.slice(2, -2)}</strong>;
     }
@@ -12,23 +12,139 @@ function renderInline(text) {
   });
 }
 
+function parseSchemeHeader(line) {
+  const raw = line.replace(/^:::scheme\s*/i, '').trim();
+  const [typeRaw = 'cards', ...titleParts] = raw.split('|');
+  const type = typeRaw.trim().toLowerCase();
+  const title = titleParts.join('|').trim() || 'Схема проекта';
+  return { type, title };
+}
+
+function parseScheme(lines, startIndex) {
+  const { type, title } = parseSchemeHeader(lines[startIndex]);
+  const rows = [];
+  let index = startIndex + 1;
+
+  while (index < lines.length && lines[index].trim() !== ':::') {
+    const line = lines[index].trim();
+    if (line) {
+      const parts = line.split('|').map((part) => part.trim());
+      rows.push(parts);
+    }
+    index += 1;
+  }
+
+  return {
+    scheme: { type, title, rows },
+    endIndex: index
+  };
+}
+
+function Scheme({ scheme }) {
+  const { type, title, rows } = scheme;
+
+  if (!rows.length) return null;
+
+  if (type === 'flow') {
+    return (
+      <div className="scheme scheme-flow">
+        <div className="scheme-title">{title}</div>
+        <div className="scheme-flow-track">
+          {rows.map((row, index) => (
+            <div className="scheme-flow-part" key={index}>
+              <div className="scheme-node">
+                <div className="scheme-node-title">{row[0]}</div>
+                {row[1] && <div className="scheme-node-text">{row.slice(1).join(' | ')}</div>}
+              </div>
+              {index < rows.length - 1 && <div className="scheme-arrow" aria-hidden="true">→</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'proscons') {
+    const pluses = rows.filter((row) => ['plus', '+', 'плюс'].includes((row[0] || '').toLowerCase()));
+    const risks = rows.filter((row) => ['risk', '-', 'риск', 'minus', 'минус'].includes((row[0] || '').toLowerCase()));
+    return (
+      <div className="scheme scheme-proscons">
+        <div className="scheme-title">{title}</div>
+        <div className="scheme-columns">
+          <div className="scheme-column">
+            <div className="scheme-column-title">Сильные стороны</div>
+            {pluses.map((row, index) => <div className="scheme-point" key={index}>+ {row.slice(1).join(' | ')}</div>)}
+          </div>
+          <div className="scheme-column">
+            <div className="scheme-column-title">Риски и ограничения</div>
+            {risks.map((row, index) => <div className="scheme-point" key={index}>− {row.slice(1).join(' | ')}</div>)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="scheme scheme-cards">
+      <div className="scheme-title">{title}</div>
+      <div className="scheme-card-grid">
+        {rows.map((row, index) => (
+          <div className="scheme-card" key={index}>
+            <div className="scheme-card-title">{row[0]}</div>
+            {row[1] && <div className="scheme-card-text">{row.slice(1).join(' | ')}</div>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FormattedText({ lines, keyPrefix = 'text' }) {
+  return lines.map((line, index) => {
+    const trimmed = line.trim();
+    const key = `${keyPrefix}-${index}`;
+    if (!trimmed) return <div key={key} className="message-gap" />;
+    if (trimmed.startsWith('### ')) return <h4 key={key}>{renderInline(trimmed.slice(4))}</h4>;
+    if (trimmed.startsWith('## ')) return <h3 key={key}>{renderInline(trimmed.slice(3))}</h3>;
+    if (trimmed.startsWith('# ')) return <h3 key={key}>{renderInline(trimmed.slice(2))}</h3>;
+    if (/^[-•] /.test(trimmed)) return <div key={key} className="message-list-item"><span>•</span><div>{renderInline(trimmed.slice(2))}</div></div>;
+    if (/^\d+[.)] /.test(trimmed)) {
+      const match = trimmed.match(/^(\d+[.)])\s+(.*)$/);
+      return <div key={key} className="message-list-item"><span>{match[1]}</span><div>{renderInline(match[2])}</div></div>;
+    }
+    return <div key={key} className="message-paragraph">{renderInline(line)}</div>;
+  });
+}
+
 function FormattedMessage({ text }) {
   const lines = String(text || '').split('\n');
+  const blocks = [];
+  let textBuffer = [];
+
+  function flushText() {
+    if (!textBuffer.length) return;
+    blocks.push({ type: 'text', lines: textBuffer });
+    textBuffer = [];
+  }
+
+  for (let index = 0; index < lines.length; index += 1) {
+    if (/^:::scheme\b/i.test(lines[index].trim())) {
+      flushText();
+      const { scheme, endIndex } = parseScheme(lines, index);
+      blocks.push({ type: 'scheme', scheme });
+      index = endIndex;
+    } else {
+      textBuffer.push(lines[index]);
+    }
+  }
+  flushText();
+
   return (
     <div className="formatted-message">
-      {lines.map((line, index) => {
-        const trimmed = line.trim();
-        if (!trimmed) return <div key={index} className="message-gap" />;
-        if (trimmed.startsWith('### ')) return <h4 key={index}>{renderInline(trimmed.slice(4))}</h4>;
-        if (trimmed.startsWith('## ')) return <h3 key={index}>{renderInline(trimmed.slice(3))}</h3>;
-        if (trimmed.startsWith('# ')) return <h3 key={index}>{renderInline(trimmed.slice(2))}</h3>;
-        if (/^[-•] /.test(trimmed)) return <div key={index} className="message-list-item"><span>•</span><div>{renderInline(trimmed.slice(2))}</div></div>;
-        if (/^\d+[.)] /.test(trimmed)) {
-          const match = trimmed.match(/^(\d+[.)])\s+(.*)$/);
-          return <div key={index} className="message-list-item"><span>{match[1]}</span><div>{renderInline(match[2])}</div></div>;
-        }
-        return <div key={index} className="message-paragraph">{renderInline(line)}</div>;
-      })}
+      {blocks.map((block, index) => block.type === 'scheme'
+        ? <Scheme key={`scheme-${index}`} scheme={block.scheme} />
+        : <FormattedText key={`text-${index}`} lines={block.lines} keyPrefix={`block-${index}`} />
+      )}
     </div>
   );
 }
