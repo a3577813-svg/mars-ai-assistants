@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { roles } from '../../../lib/roles';
 import { technologistInstructions } from '../../../lib/technologistInstructions';
 import { marketerInstructions } from '../../../lib/marketerInstructions';
+import { analystInstructions } from '../../../lib/analystInstructions';
 import { projectPassportInstructions } from '../../../lib/projectPassportInstructions';
 
 export const runtime = 'nodejs';
@@ -69,6 +70,7 @@ export async function POST(request) {
     let roleInstructions = role.instructions;
     if (roleId === 'technologist') roleInstructions = `${technologistInstructions}\n${projectPassportInstructions}`;
     if (roleId === 'assistant') roleInstructions = marketerInstructions;
+    if (roleId === 'analyst') roleInstructions = analystInstructions;
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const response = await client.responses.create({
