@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react';
 import { roleList } from '../lib/roles';
 import { roleCapabilities } from '../lib/roleCapabilities';
 
+const roleAccentClass = {
+  leader: 'role-leader',
+  technologist: 'role-technologist',
+  marketer: 'role-marketer',
+  analyst: 'role-analyst',
+};
+
 export default function HomePage() {
   const [name, setName] = useState('');
   const [project, setProject] = useState('');
@@ -48,9 +55,10 @@ export default function HomePage() {
           const capabilities = roleCapabilities[role.id] || [];
           const isExpanded = expandedRole === role.id;
           const visibleCapabilities = isExpanded ? capabilities : capabilities.slice(0, 3);
+          const accentClass = roleAccentClass[role.id] || '';
 
           return (
-            <article className={`role-card${isExpanded ? ' role-card-expanded' : ''}`} key={role.id}>
+            <article className={`role-card ${accentClass}${isExpanded ? ' role-card-expanded' : ''}`} key={role.id}>
               <div className="role-icon">{role.emoji}</div>
               <h2>{role.title}</h2>
               <p className="role-short">{role.short}</p>
@@ -62,20 +70,23 @@ export default function HomePage() {
                 </ol>
               )}
 
-              {capabilities.length > 3 && (
-                <button
-                  type="button"
-                  className="role-capabilities-toggle"
-                  onClick={() => toggleCapabilities(role.id)}
-                  aria-expanded={isExpanded}
-                >
-                  {isExpanded ? 'Свернуть список ↑' : 'Развернуть весь список возможностей ↓'}
-                </button>
-              )}
+              <div className="role-actions">
+                {capabilities.length > 3 && (
+                  <button
+                    type="button"
+                    className="role-capabilities-toggle"
+                    onClick={() => toggleCapabilities(role.id)}
+                    aria-expanded={isExpanded}
+                  >
+                    <span>{isExpanded ? 'Свернуть список' : 'Развернуть весь список возможностей'}</span>
+                    <span className="role-toggle-arrow" aria-hidden="true">{isExpanded ? '↑' : '↓'}</span>
+                  </button>
+                )}
 
-              <button type="button" className="role-open-button" onClick={() => openRole(role.id)}>
-                Открыть →
-              </button>
+                <button type="button" className="role-open-button" onClick={() => openRole(role.id)}>
+                  Открыть →
+                </button>
+              </div>
             </article>
           );
         })}
