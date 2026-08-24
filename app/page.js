@@ -47,6 +47,7 @@ export default function HomePage() {
         {roleList.map((role) => {
           const capabilities = roleCapabilities[role.id] || [];
           const isExpanded = expandedRole === role.id;
+          const visibleCapabilities = isExpanded ? capabilities : capabilities.slice(0, 3);
 
           return (
             <article className={`role-card${isExpanded ? ' role-card-expanded' : ''}`} key={role.id}>
@@ -55,21 +56,21 @@ export default function HomePage() {
               <p className="role-short">{role.short}</p>
               <p className="role-description">{role.description}</p>
 
-              {capabilities.length > 0 && (
+              {visibleCapabilities.length > 0 && (
+                <ol className="role-capabilities-list">
+                  {visibleCapabilities.map((item, index) => <li key={index}>{item}</li>)}
+                </ol>
+              )}
+
+              {capabilities.length > 3 && (
                 <button
                   type="button"
                   className="role-capabilities-toggle"
                   onClick={() => toggleCapabilities(role.id)}
                   aria-expanded={isExpanded}
                 >
-                  {isExpanded ? 'Скрыть функции ↑' : 'Что умеет? ↓'}
+                  {isExpanded ? 'Свернуть список ↑' : 'Развернуть весь список возможностей ↓'}
                 </button>
-              )}
-
-              {isExpanded && (
-                <ol className="role-capabilities-list">
-                  {capabilities.map((item, index) => <li key={index}>{item}</li>)}
-                </ol>
               )}
 
               <button type="button" className="role-open-button" onClick={() => openRole(role.id)}>
