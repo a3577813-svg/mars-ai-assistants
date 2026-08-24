@@ -1,0 +1,1 @@
+The original MARS logo supplied by the project owner is embedded directly in app/page.js to preserve the exact artwork.
