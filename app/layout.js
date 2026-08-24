@@ -1,4 +1,5 @@
 import './styles.css';
+import './logo-fix.css';
 
 export const metadata = {
   title: 'Проектные ассистенты',
