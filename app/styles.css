@@ -29,7 +29,8 @@ h1 { font-size: clamp(38px, 6vw, 72px); line-height: .98; letter-spacing: -.05em
 .role-card h2 { font-size: 30px; letter-spacing: -.03em; margin: 0 0 8px; }
 .role-short { font-weight: 700; margin: 0 0 8px; }
 .role-description { color: var(--muted); line-height: 1.45; margin: 0 0 20px; }
-.role-capabilities-toggle { appearance: none; border: 0; background: transparent; padding: 0; margin: 0 0 16px; cursor: pointer; font-size: 14px; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
+.role-capabilities-toggle { appearance: none; width: 100%; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 12px; padding: 11px 14px; margin: 0 0 16px; cursor: pointer; font-size: 14px; font-weight: 850; text-align: center; transition: background .15s ease, color .15s ease, transform .15s ease; }
+.role-capabilities-toggle:hover { background: var(--soft); transform: translateY(-1px); }
 .role-capabilities-list { margin: 0 0 20px; padding-left: 22px; border-top: 1px solid var(--line); padding-top: 16px; }
 .role-capabilities-list li { padding-left: 4px; margin-bottom: 12px; font-size: 14px; line-height: 1.48; }
 .role-open-button { appearance: none; border: 0; background: var(--accent); color: #fff; border-radius: 12px; padding: 11px 15px; cursor: pointer; font-size: 14px; font-weight: 800; }
