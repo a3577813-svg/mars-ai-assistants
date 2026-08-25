@@ -15,6 +15,7 @@
 }
 
 .mars-logo {
+  content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARwAAAEcCAYAAAB2Vw7JAA...TRUNCATED_FOR_TOOL...") !important;
   display: block !important;
   grid-column: 1;
   grid-row: 1;
