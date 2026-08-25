@@ -3,7 +3,7 @@
   grid-template-columns: 176px auto;
   grid-template-rows: auto auto;
   column-gap: 28px;
-  row-gap: 4px;
+  row-gap: 5px;
   align-items: center;
   width: auto;
   text-align: left;
@@ -36,14 +36,14 @@
   width: 156px;
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
-  line-height: 1.1;
-  font-weight: 800;
-  letter-spacing: .04em;
+  font-size: 13px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: .015em;
   color: #4b20c8;
   white-space: nowrap;
-  text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .mars-brand > div {
@@ -71,7 +71,8 @@
   .mars-logo { width: 112px !important; }
   .mars-brand::after {
     width: 112px;
-    font-size: 7.5px;
+    font-size: 12px;
+    letter-spacing: 0;
   }
   .mars-brand-subtitle { display: none !important; }
 }
