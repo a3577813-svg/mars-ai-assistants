@@ -15,7 +15,6 @@
 }
 
 .mars-logo {
-  content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARwAAAEcCAYAAAB2Vw7JAA...TRUNCATED_FOR_TOOL...") !important;
   display: block !important;
   grid-column: 1;
   grid-row: 1;
@@ -61,30 +60,18 @@
   display: none !important;
 }
 
-.mars-brand-title {
-  display: block !important;
-}
-
-.mars-brand-subtitle {
-  display: block !important;
-}
+.mars-brand-title { display: block !important; }
+.mars-brand-subtitle { display: block !important; }
 
 @media (max-width: 720px) {
   .mars-brand {
     grid-template-columns: 124px auto;
     column-gap: 14px;
   }
-
-  .mars-logo {
-    width: 112px !important;
-  }
-
+  .mars-logo { width: 112px !important; }
   .mars-brand::after {
     width: 112px;
     font-size: 7.5px;
   }
-
-  .mars-brand-subtitle {
-    display: none !important;
-  }
+  .mars-brand-subtitle { display: none !important; }
 }
