@@ -1,0 +1,18 @@
+.mars-brand::before {
+  width: 86px !important;
+  height: 62px !important;
+  flex: 0 0 86px !important;
+  border-radius: 0 !important;
+  background-size: 86px auto !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+}
+
+@media (max-width: 720px) {
+  .mars-brand::before {
+    width: 74px !important;
+    height: 54px !important;
+    flex-basis: 74px !important;
+    background-size: 74px auto !important;
+  }
+}
