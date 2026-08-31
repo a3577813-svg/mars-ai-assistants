@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import '../lib/roleCapabilities';
 
 export default function LogoLoader() {
   useEffect(() => {
