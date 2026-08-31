@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { roles } from '../../../lib/roles';
+import '../../../lib/roleCapabilities';
 import { technologistInstructions } from '../../../lib/technologistInstructions';
 import { marketerInstructions } from '../../../lib/marketerInstructions';
 import { analystInstructions } from '../../../lib/analystInstructions';
