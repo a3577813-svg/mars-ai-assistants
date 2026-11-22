@@ -55,6 +55,12 @@ export default function HomePage() {
         <p className="lead">Выбери роль под текущую задачу проекта. Каждый ассистент работает в своей педагогической позиции.</p>
       </section>
 
+      <section style={{margin:'18px 0',padding:'20px',border:'1px solid #d9d2f5',borderRadius:'18px',background:'#f7f5ff'}}>
+        <h2 style={{margin:'0 0 8px'}}>🔬 AI-исследователь МАРС</h2>
+        <p style={{margin:'0 0 14px'}}>Два режима: учебный для школьников и профессиональный для педагогов. Постановка исследования, поиск научных источников и отчёт Gemini Deep Research.</p>
+        <a href="/research" className="role-open-button" style={{display:'inline-block',textDecoration:'none'}}>Открыть исследователя →</a>
+      </section>
+
       <section className="identity-card">
         <label>
           <span>Как тебя зовут?</span>
