@@ -1,0 +1,29 @@
+'use client';
+import { useEffect, useState } from 'react';
+const fields=[['project','Название проекта'],['grade','Класс (5–11)'],['role','Роль в проекте'],['topic','Тема исследования'],['problem','Проблема / исследовательский вопрос'],['object','Объект'],['subject','Предмет'],['goal','Цель исследования'],['tasks','Задачи исследования'],['methods','Методы исследования'],['sources','Ссылки на уже найденные статьи (необязательно)']];
+export default function ResearchPage(){
+ const [mode,setMode]=useState('student'); const [form,setForm]=useState({}); const [id,setId]=useState(''); const [status,setStatus]=useState(''); const [report,setReport]=useState(''); const [error,setError]=useState(''); const [loading,setLoading]=useState(false);
+ useEffect(()=>{try{const s=JSON.parse(localStorage.getItem('mars_research_draft')||'{}');setForm(s.form||{project:localStorage.getItem('mars_project')||''});setMode(s.mode||'student');setId(s.id||'');setReport(s.report||'');setStatus(s.status||'');}catch{}},[]);
+ useEffect(()=>{localStorage.setItem('mars_research_draft',JSON.stringify({mode,form,id,report,status}));},[mode,form,id,report,status]);
+ useEffect(()=>{if(!id||!['in_progress','queued','running'].includes(status))return;let active=true;async function check(){try{const r=await fetch('/api/research?id='+encodeURIComponent(id),{cache:'no-store'});const d=await r.json();if(!active)return;if(!r.ok)throw Error(d.error);setStatus(d.status);if(d.report)setReport(d.report);if(d.error)setError(d.error);}catch(e){if(active)setError(e.message);}}check();const timer=setInterval(check,12000);return()=>{active=false;clearInterval(timer)}},[id,status]);
+ async function start(e){e.preventDefault();if(!window.confirm('Запустить платное исследование Gemini Deep Research по согласованной теме?'))return;setLoading(true);setError('');setReport('');setId('');try{const r=await fetch('/api/research',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...form,mode})});const d=await r.json();if(!r.ok)throw Error(d.error);setId(d.id);setStatus(d.status);}catch(e){setError(e.message)}finally{setLoading(false)}}
+ const update=(key,value)=>setForm(f=>({...f,[key]:value}));
+ return <main className="chat-shell" style={{maxWidth:1000,margin:'0 auto',padding:'24px 18px'}}>
+ <a href="/" className="back-link">← Все ассистенты</a>
+ <h1 style={{marginTop:22}}>🔬 AI-исследователь МАРС</h1>
+ <p>От проектной задачи к научному отчёту. Gemini Deep Research — основной исследовательский движок. Статьи КиберЛенинки — приоритет.</p>
+ <div style={{display:'flex',gap:10,margin:'20px 0'}}>
+ <button type="button" className="ghost-button" onClick={()=>setMode('student')} style={{fontWeight:mode==='student'?800:400}}>Учебный режим</button>
+ <button type="button" className="ghost-button" onClick={()=>setMode('teacher')} style={{fontWeight:mode==='teacher'?800:400}}>Профессиональный режим</button></div>
+ <p style={{fontSize:14}}>{mode==='student'?'Школьник вместе с тьютором формулирует аппарат и анализирует результаты. Итог Gemini — исследовательские материалы, которые нужно осмыслить и проверить.':'Педагог согласовывает аппарат, Gemini готовит развёрнутый аналитический отчёт для экспертной проверки.'}</p>
+ <form onSubmit={start} style={{display:'grid',gap:14,marginTop:20}}>
+ {fields.map(([key,label])=><label key={key} style={{display:'grid',gap:6}}><strong>{label}</strong><textarea rows={['problem','tasks','sources'].includes(key)?3:2} value={form[key]||''} onChange={e=>update(key,e.target.value)} placeholder={key==='sources'?'https://cyberleninka.ru/article/...':''} style={{width:'100%',padding:12,borderRadius:10,border:'1px solid #aaa',font:'inherit'}}/></label>)}
+ <p style={{fontSize:13}}>Перед запуском проверьте связность объекта, предмета, цели, задач и методов. Исследование может занимать несколько минут и тарифицируется Google отдельно.</p>
+ <button type="submit" disabled={loading||!!id&&['in_progress','queued','running'].includes(status)} style={{padding:14,borderRadius:10,background:'#4b20c8',color:'white',fontWeight:700,border:0,cursor:'pointer'}}>{loading?'Запуск…':'Запустить Gemini Deep Research'}</button>
+ </form>
+ {id&&<section style={{marginTop:25,padding:16,border:'1px solid #aaa',borderRadius:12}}><h2>Исследование</h2><p>Статус: <strong>{status}</strong></p><p style={{fontSize:12,overflowWrap:'anywhere'}}>ID: {id}</p><p>Состояние сохраняется в этом браузере. Можно вернуться на страницу позже.</p></section>}
+ {error&&<p role="alert" style={{color:'#a11'}}>{error}</p>}
+ {report&&<section style={{marginTop:24}}><h2>Отчёт Gemini — требует проверки источников</h2><button type="button" className="ghost-button" onClick={()=>{const blob=new Blob([report],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='МАРС_исследование.txt';a.click();URL.revokeObjectURL(url)}}>Сохранить текст отчёта</button><article style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',lineHeight:1.6,marginTop:16}}>{report}</article></section>}
+ {id&&status==='completed'&&<button className="ghost-button" onClick={()=>{setId('');setReport('');setStatus('');setError('')}}>Новое исследование</button>}
+ </main>;
+}
