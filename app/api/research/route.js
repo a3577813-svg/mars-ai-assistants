@@ -4,6 +4,8 @@ const headers = () => ({ 'Content-Type': 'application/json', 'x-goog-api-key': p
 const errorText = (data) => data?.error?.message || 'Ошибка Gemini API';
 export async function POST(request) {
   try {
+    if (!process.env.MARS_RESEARCH_ACCESS_CODE) return Response.json({error:'Задайте MARS_RESEARCH_ACCESS_CODE в Vercel для защиты платных исследований.'},{status:503});
+    if (request.headers.get('x-mars-research-code') !== process.env.MARS_RESEARCH_ACCESS_CODE) return Response.json({error:'Неверный код доступа к исследованиям.'},{status:403});
     if (!process.env.GEMINI_API_KEY) return Response.json({error:'Для запуска исследований добавьте GEMINI_API_KEY в Vercel → Settings → Environment Variables.'},{status:503});
     const body = await request.json();
     const { mode, grade, role, project, topic, problem, object, subject, goal, tasks, methods, sources } = body;
@@ -23,6 +25,7 @@ export async function POST(request) {
 }
 export async function GET(request) {
   try {
+    if (!process.env.MARS_RESEARCH_ACCESS_CODE || request.headers.get('x-mars-research-code') !== process.env.MARS_RESEARCH_ACCESS_CODE) return Response.json({error:'Необходим код доступа.'},{status:403});
     if (!process.env.GEMINI_API_KEY) return Response.json({error:'GEMINI_API_KEY не настроен.'},{status:503});
     const id = new URL(request.url).searchParams.get('id');
     if (!id || !/^v1_[A-Za-z0-9_-]{8,200}$/.test(id)) return Response.json({error:'Некорректный идентификатор исследования.'},{status:400});
