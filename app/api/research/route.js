@@ -9,7 +9,7 @@ export async function POST(request) {
     if (!process.env.GEMINI_API_KEY) return Response.json({error:'Для запуска исследований добавьте GEMINI_API_KEY в Vercel → Settings → Environment Variables.'},{status:503});
     const body = await request.json();
     const { mode, grade, role, project, topic, problem, object, subject, goal, tasks, methods, sources } = body;
-    if (!['student','teacher'].includes(mode) || !topic?.trim() || !goal?.trim() || !project?.trim()) return Response.json({error:'Укажите режим, проект, тему и цель исследования.'},{status:400});
+    if (mode !== 'teacher' || !topic?.trim() || !goal?.trim() || !project?.trim()) return Response.json({error:'Укажите режим, проект, тему и цель исследования.'},{status:400});
     const prompt = `Ты — Gemini Deep Research, научно-аналитический движок АНО ЦСКП «МАРС», Обнинск. Подготовь полноценный научно-аналитический отчёт на русском языке.
 Режим: ${mode === 'student' ? 'учебный (материалы для самостоятельной работы школьника, не выдавай непроверенные выводы за его собственные)' : 'профессиональный (аналитика для педагога)'}. Класс: ${grade || 'не указан'}. Роль: ${role || 'не указана'}.
 Проект: ${project}. Тема: ${topic}. Проблема: ${problem || 'уточнить по источникам'}. Объект: ${object || 'не задан'}. Предмет: ${subject || 'не задан'}. Цель: ${goal}. Задачи: ${tasks || 'сформулировать исходя из цели'}. Методы: ${methods || 'анализ научной литературы и сравнительный анализ'}.
