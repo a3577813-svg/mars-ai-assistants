@@ -1,6 +1,6 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Footer, Header, ExternalHyperlink } from 'docx';
 export const runtime='nodejs';
-const items=[['project','Название проекта'],['grade','Класс'],['role','Роль в проекте'],['topic','Тема исследования'],['problem','Исследовательская проблема'],['object','Объект исследования'],['subject','Предмет исследования'],['goal','Цель исследования'],['tasks','Задачи исследования'],['methods','Методы исследования']];
+const items=[['project','Название проекта'],['grade','Класс'],['role','Роль в проекте'],['topic','Тема исследования'],['problem','Исследовательская проблема'],['object','Объект исследования'],['subject','Предмет исследования'],['goal','Цель исследования'],['tasks','Задачи исследования'],['methods','Методы исследования'],['hypothesis','Гипотеза исследования'],['expectedResult','Предполагаемый результат исследования']];
 const split=(s)=>String(s||'').split(/\r?\n/).filter(Boolean);
 export async function POST(request){
  try{
