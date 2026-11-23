@@ -1,4 +1,4 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Footer } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 export const runtime='nodejs';
 // Remove characters that XML 1.0 (and Microsoft Word) cannot represent.
 const safe = (value) => String(value ?? '').replace(/[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\uFFFE\\uFFFF]/g, '');
@@ -26,7 +26,7 @@ export async function POST(request){
    const body=bullet?bullet[1]:numbered?line:line;
    children.push(new Paragraph({children:asRuns(body),bullet:bullet?{indent:400}:undefined,spacing:{after:110}}));
   }
-  const doc=new Document({creator:'АНО ЦСКП МАРС',title:'Научно-аналитический отчёт МАРС',styles:{default:{document:{run:{font:'Arial',size:22},paragraph:{spacing:{line:300}}}}},sections:[{properties:{page:{margin:{top:1000,bottom:1000,left:1100,right:1100}}},children,footers:{default:new Footer({children:[new Paragraph({text:'АНО ЦСКП «МАРС», Обнинск',alignment:AlignmentType.CENTER})]})}}]});
+  const doc=new Document({creator:'АНО ЦСКП МАРС',title:'Научно-аналитический отчёт МАРС',sections:[{children}]});
   const bytes=await Packer.toBuffer(doc);
   return new Response(bytes,{headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','Content-Disposition':'attachment; filename="MARS_Gemini_research.docx"','Cache-Control':'no-store'}});
  }catch(e){console.error(e);return Response.json({error:'Не удалось сформировать Word-отчёт'},{status:500});}
