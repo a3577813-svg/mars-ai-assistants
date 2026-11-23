@@ -113,6 +113,16 @@ export async function POST(request){
   blocks.push(header('СПИСОК ЛИТЕРАТУРЫ И ИСТОЧНИКОВ',1));
   if(entries.length)entries.forEach((entry,i)=>blocks.push(bibliographyLine(entry,i+1)));
   else blocks.push(para('Библиографический список не представлен в исходном отчёте; необходимо дополнить проверенными публикациями.'));
+  // Every in-text [cite: N] gets a real Word footnote, preserving the original source number.
+  const sourceEntries=bibliographyItems(parsed.bibliography);
+  const footnoteBody=[...footnoteRefs].sort((a,b)=>a-b).map(id=>{
+    const entry=sourceEntries[id-1]||'Источник '+id+': библиографические данные в отчёте отсутствуют';
+    return '<w:footnote w:id="'+id+'"><w:p><w:r><w:footnoteRef/></w:r><w:r><w:t xml:space="preserve"> '+esc(plain(entry))+'</w:t></w:r></w:p></w:footnote>';
+  }).join('');
+  const footnotes='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:footnotes xmlns:w="'+W+'">'+
+    '<w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:footnote>'+
+    '<w:footnote w:type="continuationSeparator" w:id="0"><w:p><w:r><w:continuationSeparator/></w:r></w:p></w:footnote>'+
+    footnoteBody+'</w:footnotes>';
   const document='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
     '<w:document xmlns:w="'+W+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>'+blocks.join('')+
     '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
@@ -127,18 +137,20 @@ export async function POST(request){
     '<Default Extension="xml" ContentType="application/xml"/>'+
     '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
     '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+    '<Override PartName="/word/footnotes.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>'+
     '</Types>';
   const rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
     '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
   const wordRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
-    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+links.map(l=>'<Relationship Id="'+l.id+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="'+esc(l.url)+'" TargetMode="External"/>').join('')+'</Relationships>';
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+ '<Relationship Id="rIdFootnotes" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" Target="footnotes.xml"/>'+links.map(l=>'<Relationship Id="'+l.id+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="'+esc(l.url)+'" TargetMode="External"/>').join('')+'</Relationships>';
   const zip=new JSZip();
   zip.file('[Content_Types].xml',types);
   zip.file('_rels/.rels',rels);
   zip.file('word/document.xml',document);
   zip.file('word/styles.xml',styles);
+  zip.file('word/footnotes.xml',footnotes);
   zip.file('word/_rels/document.xml.rels',wordRels);
   const bytes=await zip.generateAsync({type:'nodebuffer',compression:'DEFLATE'});
   return new Response(bytes,{headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','Content-Disposition':'attachment; filename="MARS_Gemini_research.docx"','Cache-Control':'no-store'}});
