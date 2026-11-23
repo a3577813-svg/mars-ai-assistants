@@ -21,7 +21,10 @@ export default function ResearchPage(){
  <p style={{fontSize:14}}>{mode==='student'?'Школьник вместе с тьютором формулирует аппарат и анализирует результаты. Итог Gemini — исследовательские материалы, которые нужно осмыслить и проверить.':'Педагог согласовывает аппарат, Gemini готовит развёрнутый аналитический отчёт для экспертной проверки.'}</p>
  {mode==='student' && <section style={{display:'grid',gap:16,marginTop:20}}>
   <div style={{padding:18,border:'1px solid #d9d2f5',borderRadius:14,background:'#faf8ff'}}>
-   <h2>Шаг 1. Диалог с исследовательским тьютором</h2>
+   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+    <h2 style={{margin:0}}>Шаг 1. Диалог с исследовательским тьютором</h2>
+    <button type="button" className="ghost-button" onClick={()=>{if(chat.length&&!window.confirm('Начать новый диалог? Предыдущая переписка и ученический паспорт будут очищены.'))return;setChat([]);setChatInput('');setSourceText('');setPassportReady(false);setForm({project:localStorage.getItem('mars_project')||''});setError('');}}>＋ Новый диалог</button>
+   </div>
    <p>Начни с рассказа о своём проекте и роли. Тьютор поможет выбрать тему и последовательно сформулировать научный аппарат. Gemini здесь не запускается.</p>
    <div aria-live="polite" style={{display:'grid',gap:12,maxHeight:500,overflowY:'auto',padding:'12px 0'}}>
     <div style={{background:'white',padding:12,borderRadius:10}}>Привет! В каком ты классе, над каким проектом работаешь и какая у тебя роль?</div>
