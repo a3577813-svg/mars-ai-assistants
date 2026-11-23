@@ -16,7 +16,16 @@ export default function ResearchPage(){
  async function downloadReportWord(){setDocxBusy(true);setError('');try{const r=await fetch('/api/research/report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({report,form})});if(!r.ok){const d=await r.json();throw Error(d.error||'Ошибка экспорта')}const blob=await r.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='МАРС_научно-аналитический_отчёт.docx';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}catch(e){setError(e.message)}finally{setDocxBusy(false)}}
  const articleCount=studentArticleLinks(chat).length;
  const update=(key,value)=>setForm(f=>({...f,[key]:value}));
- return <main className="chat-shell" style={{maxWidth:1000,margin:'0 auto',padding:'24px 18px'}}>
+ return <main className="chat-shell mars-research-layout" style={{maxWidth:1000,width:'100%',minWidth:0,boxSizing:'border-box',margin:'0 auto',padding:'24px 18px',overflowWrap:'anywhere'}}>
+ <style>{`
+ .mars-research-layout, .mars-research-layout * {box-sizing:border-box;min-width:0}
+ .mars-research-layout input, .mars-research-layout textarea, .mars-research-layout select {display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+ .mars-research-layout form, .mars-research-layout section, .mars-research-layout article, .mars-research-layout label {min-width:0;max-width:100%}
+ .mars-research-layout textarea {resize:vertical;overflow-wrap:anywhere}
+ .mars-research-layout button {max-width:100%;white-space:normal;overflow-wrap:anywhere}
+ .mars-research-layout a, .mars-research-layout p, .mars-research-layout div {overflow-wrap:anywhere}
+ @media(max-width:600px){.mars-research-layout{padding:16px 12px!important}.mars-research-layout h1{font-size:1.6rem}}
+ `}</style>
  <a href="/" className="back-link">← Все ассистенты</a>
  <h1 style={{marginTop:22}}>🔬 AI-исследователь МАРС</h1>
  <p>От проектной задачи к научному отчёту. Gemini Deep Research — основной исследовательский движок. Статьи КиберЛенинки — приоритет.</p>
