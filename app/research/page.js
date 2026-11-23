@@ -18,13 +18,17 @@ export default function ResearchPage(){
  const update=(key,value)=>setForm(f=>({...f,[key]:value}));
  return <main className="chat-shell mars-research-layout" style={{maxWidth:1000,width:'100%',minWidth:0,boxSizing:'border-box',margin:'0 auto',padding:'24px 18px',overflowWrap:'anywhere'}}>
  <style>{`
+ .mars-research-layout {display:block!important;grid-template-rows:none!important;min-height:100vh;width:min(100%,1000px)!important;overflow-x:hidden}
+ .mars-research-layout > h1 {font-size:clamp(28px,4vw,42px)!important;line-height:1.16!important;letter-spacing:-.035em!important;margin:18px 0 18px!important;overflow-wrap:break-word}
+ .mars-research-layout > p {max-width:100%;line-height:1.55;white-space:normal}
+ .mars-research-layout h2 {font-size:clamp(19px,2.5vw,24px);line-height:1.25;letter-spacing:-.02em}
  .mars-research-layout, .mars-research-layout * {box-sizing:border-box;min-width:0}
  .mars-research-layout input, .mars-research-layout textarea, .mars-research-layout select {display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
  .mars-research-layout form, .mars-research-layout section, .mars-research-layout article, .mars-research-layout label {min-width:0;max-width:100%}
  .mars-research-layout textarea {resize:vertical;overflow-wrap:anywhere}
  .mars-research-layout button {max-width:100%;white-space:normal;overflow-wrap:anywhere}
- .mars-research-layout a, .mars-research-layout p, .mars-research-layout div {overflow-wrap:anywhere}
- @media(max-width:600px){.mars-research-layout{padding:16px 12px!important}.mars-research-layout h1{font-size:1.6rem}}
+ .mars-research-layout a, .mars-research-layout p, .mars-research-layout div {overflow-wrap:anywhere;max-width:100%}
+ @media(max-width:600px){.mars-research-layout{padding:16px 12px!important}.mars-research-layout > h1{font-size:1.7rem!important}.mars-research-layout > div{flex-wrap:wrap}}
  `}</style>
  <a href="/" className="back-link">← Все ассистенты</a>
  <h1 style={{marginTop:22}}>🔬 AI-исследователь МАРС</h1>
