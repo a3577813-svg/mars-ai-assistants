@@ -55,12 +55,6 @@ export default function HomePage() {
         <p className="lead">Выбери роль под текущую задачу проекта. Каждый ассистент работает в своей педагогической позиции.</p>
       </section>
 
-      <section style={{margin:'18px 0',padding:'20px',border:'1px solid #d9d2f5',borderRadius:'18px',background:'#f7f5ff'}}>
-        <h2 style={{margin:'0 0 8px'}}>🔬 AI-исследователь МАРС</h2>
-        <p style={{margin:'0 0 14px'}}>Два режима: учебный для школьников и профессиональный для педагогов. Постановка исследования, поиск научных источников и отчёт Gemini Deep Research.</p>
-        <a href="/research" className="role-open-button" style={{display:'inline-block',textDecoration:'none'}}>Открыть исследователя →</a>
-      </section>
-
       <section className="identity-card">
         <label>
           <span>Как тебя зовут?</span>
@@ -120,6 +114,36 @@ export default function HomePage() {
             </article>
           );
         })}
+        <article className={`role-card role-analyst${expandedRole === 'research' ? ' role-card-expanded' : ''}`} key="research">
+          <div className="role-card-top">
+            <div className="role-icon">🔬</div>
+            <div className="role-dot" aria-hidden="true" />
+          </div>
+          <h2>AI-исследователь</h2>
+          <p className="role-short">Научное исследование и отчёт</p>
+          <p className="role-description">Помогает сформулировать тему и исследовательский аппарат, найти научные источники и подготовить отчёт с помощью Gemini Deep Research.</p>
+          <ol className="role-capabilities-list">
+            {(expandedRole === 'research' ? [
+              'Формулировка темы исследования с учётом проекта и роли.',
+              'Разработка объекта, предмета, цели, задач и методов.',
+              'Поиск научных источников, в первую очередь на КиберЛенинке.',
+              'Глубокое исследование с Gemini Deep Research.',
+              'Учебный и профессиональный режимы работы.',
+              'Подготовка научно-аналитического отчёта.'
+            ] : [
+              'Формулировка темы исследования с учётом проекта и роли.',
+              'Разработка объекта, предмета, цели, задач и методов.',
+              'Поиск научных источников, в первую очередь на КиберЛенинке.'
+            ]).map((item,index)=><li key={index}>{item}</li>)}
+          </ol>
+          <div className="role-actions">
+            <button type="button" className="role-capabilities-toggle" onClick={()=>toggleCapabilities('research')} aria-expanded={expandedRole === 'research'}>
+              <span>{expandedRole === 'research' ? 'Свернуть список' : 'Развернуть весь список возможностей'}</span>
+              <span className="role-toggle-arrow" aria-hidden="true">{expandedRole === 'research' ? '↑' : '↓'}</span>
+            </button>
+            <button type="button" className="role-open-button" onClick={()=>{localStorage.setItem('mars_name',name.trim());localStorage.setItem('mars_project',project.trim());window.location.href='/research';}}>Открыть →</button>
+          </div>
+        </article>
       </section>
     </main>
   );
