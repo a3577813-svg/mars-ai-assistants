@@ -1,33 +1,57 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
+import JSZip from 'jszip';
 export const runtime='nodejs';
-// Remove characters that XML 1.0 (and Microsoft Word) cannot represent.
-const safe = (value) => String(value ?? '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\uFFFE\uFFFF]/g, '');
-const asRuns = (line) => [new TextRun({text:safe(line)})];
+const esc=(v)=>String(v??'').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const W='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+const para=(text,style='')=>'<w:p>'+(style?'<w:pPr><w:pStyle w:val="'+style+'"/></w:pPr>':'')+'<w:r><w:t xml:space="preserve">'+esc(text)+'</w:t></w:r></w:p>';
+const header=(text,level)=>para(text,level===1?'Heading1':'Heading2');
 export async function POST(request){
  try{
   const {report='',form={}}=await request.json();
   if(typeof report!=='string'||!report.trim())return Response.json({error:'Отчёт ещё не получен'},{status:400});
   if(report.length>900000)return Response.json({error:'Отчёт слишком большой для экспорта'},{status:413});
-  const children=[
-   new Paragraph({children:[new TextRun({text:'АНО ЦСКП «МАРС» · ОБНИНСК',bold:true,color:'4B20C8'})],alignment:AlignmentType.CENTER,spacing:{after:250}}),
-   new Paragraph({text:'НАУЧНО-АНАЛИТИЧЕСКИЙ ОТЧЁТ',heading:HeadingLevel.TITLE,alignment:AlignmentType.CENTER,spacing:{after:300}}),
-   new Paragraph({text:safe(form.topic||'Исследование').slice(0,500),alignment:AlignmentType.CENTER,spacing:{after:250}}),
-   new Paragraph({text:'Проект: '+safe(form.project||'Не указан').slice(0,500),spacing:{after:100}}),
-   new Paragraph({text:'Класс: '+safe(form.grade||'Не указан').slice(0,100)+' · Роль: '+safe(form.role||'Не указана').slice(0,100),spacing:{after:250}}),
-   new Paragraph({children:[new TextRun({text:'Сгенерировано Gemini Deep Research. Библиографические сведения и выводы требуют проверки педагогом.',italics:true})],spacing:{after:350}})
+  const blocks=[
+    header('АНО ЦСКП «МАРС» · ОБНИНСК',2),
+    header('НАУЧНО-АНАЛИТИЧЕСКИЙ ОТЧЁТ',1),
+    para(form.topic||'Исследование'),
+    para('Проект: '+(form.project||'Не указан')),
+    para('Класс: '+(form.grade||'Не указан')+' · Роль: '+(form.role||'Не указана')),
+    para('Сгенерировано Gemini Deep Research. Библиографические сведения и выводы требуют проверки педагогом.'),
+    para('')
   ];
   for(const raw of report.split(/\r?\n/)){
-   const line=safe(raw).trim();
-   if(!line){children.push(new Paragraph({text:'',spacing:{after:80}}));continue;}
-   const h=line.match(/^(#{1,4})\s+(.+)$/);
-   if(h){children.push(new Paragraph({text:h[2],heading:h[1].length===1?HeadingLevel.HEADING_1:HeadingLevel.HEADING_2,spacing:{before:240,after:100}}));continue;}
-   const bullet=line.match(/^[-*•]\s+(.+)$/);
-   const numbered=line.match(/^\d+[.)]\s+(.+)$/);
-   const body=bullet?bullet[1]:numbered?line:line;
-   children.push(new Paragraph({children:asRuns(body),bullet:bullet?{indent:400}:undefined,spacing:{after:110}}));
+    const line=raw.trim();
+    const h=line.match(/^(#{1,4})\s+(.+)$/);
+    if(h)blocks.push(header(h[2],h[1].length===1?1:2));
+    else blocks.push(para(line));
   }
-  const doc=new Document({creator:'АНО ЦСКП МАРС',title:'Научно-аналитический отчёт МАРС',sections:[{children}]});
-  const bytes=await Packer.toBuffer(doc);
+  const document='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:document xmlns:w="'+W+'"><w:body>'+blocks.join('')+
+    '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
+  const styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:styles xmlns:w="'+W+'">'+
+    '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial"/><w:sz w:val="22"/></w:rPr></w:style>'+
+    '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="300" w:after="160"/></w:pPr><w:rPr><w:b/><w:color w:val="4B20C8"/><w:sz w:val="32"/></w:rPr></w:style>'+
+    '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="200" w:after="100"/></w:pPr><w:rPr><w:b/><w:sz w:val="26"/></w:rPr></w:style></w:styles>';
+  const types='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+    '<Default Extension="xml" ContentType="application/xml"/>'+
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+    '</Types>';
+  const rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+  const wordRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+  const zip=new JSZip();
+  zip.file('[Content_Types].xml',types);
+  zip.file('_rels/.rels',rels);
+  zip.file('word/document.xml',document);
+  zip.file('word/styles.xml',styles);
+  zip.file('word/_rels/document.xml.rels',wordRels);
+  const bytes=await zip.generateAsync({type:'nodebuffer',compression:'DEFLATE'});
   return new Response(bytes,{headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','Content-Disposition':'attachment; filename="MARS_Gemini_research.docx"','Cache-Control':'no-store'}});
  }catch(e){console.error(e);return Response.json({error:'Не удалось сформировать Word-отчёт'},{status:500});}
 }
