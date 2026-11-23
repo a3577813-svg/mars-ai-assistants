@@ -1,7 +1,7 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 export const runtime='nodejs';
 // Remove characters that XML 1.0 (and Microsoft Word) cannot represent.
-const safe = (value) => String(value ?? '').replace(/[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\uFFFE\\uFFFF]/g, '');
+const safe = (value) => String(value ?? '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\uFFFE\uFFFF]/g, '');
 const asRuns = (line) => [new TextRun({text:safe(line)})];
 export async function POST(request){
  try{
