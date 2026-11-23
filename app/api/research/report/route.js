@@ -28,7 +28,7 @@ function runs(text){
 }
 const para=(text,style='',shaded=false)=>'<w:p>'+(style||shaded?'<w:pPr>'+(style?'<w:pStyle w:val="'+style+'"/>':'')+(shaded?'<w:shd w:val="clear" w:fill="F0EBFC"/>':'')+'</w:pPr>':'')+runs(text)+'</w:p>';
 const header=(text,level)=>para('**'+plain(text)+'**',level===1?'Heading1':'Heading2');
-const apparatusKeys=[['relevance','Актуальность'],['problem','Проблема исследования'],['object','Объект исследования'],['subject','Предмет исследования'],['goal','Цель исследования'],['tasks','Задачи исследования'],['methods','Методы исследования'],['hypothesis','Гипотеза']];
+const apparatusKeys=[['relevance','Актуальность'],['problem','Проблема исследования'],['object','Объект исследования'],['subject','Предмет исследования'],['goal','Цель исследования'],['tasks','Задачи исследования'],['methods','Методы исследования'],['hypothesis','Гипотеза'],['expectedResult','Предполагаемый результат исследования']];
 function table(rows){
  const count=Math.max(1,...rows.map(r=>r.length));
  const width=Math.floor(9638/count);
